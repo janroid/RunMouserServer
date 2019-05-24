@@ -2,7 +2,7 @@ package internal
 
 import (
 	"reflect"
-	"server/msg"
+	gamePb "server/msg/gamepb"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/name5566/leaf/gate"
@@ -10,22 +10,22 @@ import (
 )
 
 func init() {
-	handler(&msg.Hello{}, handleHello)
+	handler(&gamePb.UserLogin{}, handleLogin)
 }
 
 func handler(m interface{}, h interface{}) {
 	skeleton.RegisterChanRPC(reflect.TypeOf(m), h)
 }
 
-func handleHello(args []interface{}) {
-	m := args[0].(*msg.Hello)
-
+func handleLogin(args []interface{}) {
+	m := args[0].(*gamePb.UserLogin)
 	a := args[1].(gate.Agent)
 
-	log.Debug("hello %v", m.GetName())
+	log.Release("handleLogin - type = %v, name = %v, pwd = %v", m.GetMtype(), m.GetName(), m.GetPassword())
 
-	a.WriteMsg(&msg.Hello{
-		Name: proto.String("client"),
+	a.WriteMsg(&gamePb.LoginResult{
+		Result: proto.Int32(0),
+		Name:   proto.String(m.GetName()),
 	})
 
 }

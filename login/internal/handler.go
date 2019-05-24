@@ -2,14 +2,13 @@ package internal
 
 import (
 	"reflect"
-	"server/msg"
 
 	"github.com/name5566/leaf/log"
 )
 
 func init() {
 	log.Debug("Login.handler.init ")
-	handleMsg(&msg.UserLogin{}, handleLogin)
+	// handleMsg(&msg.UserLogin{}, handleLogin)
 }
 
 func handleMsg(m interface{}, h interface{}) {
