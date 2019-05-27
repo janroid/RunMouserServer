@@ -26,7 +26,9 @@ func init() {
 
 func registerProcessor() {
 	Processor.Register(&gamePb.UserLogin{})
+	Processor.Register(&gamePb.UserRegister{})
 	Processor.Register(&gamePb.LoginResult{})
+	Processor.Register(&gamePb.GetUserInfo{})
 }
 
 func pl(id int, t reflect.Type) {

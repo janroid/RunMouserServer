@@ -21,9 +21,8 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type UserLogin struct {
-	Mtype                *int32   `protobuf:"varint,1,req,name=Mtype" json:"Mtype,omitempty"`
-	Name                 *string  `protobuf:"bytes,2,req,name=Name" json:"Name,omitempty"`
-	Password             *string  `protobuf:"bytes,3,req,name=Password" json:"Password,omitempty"`
+	Name                 *string  `protobuf:"bytes,1,req,name=Name" json:"Name,omitempty"`
+	Password             *string  `protobuf:"bytes,2,req,name=Password" json:"Password,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -54,13 +53,6 @@ func (m *UserLogin) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_UserLogin proto.InternalMessageInfo
 
-func (m *UserLogin) GetMtype() int32 {
-	if m != nil && m.Mtype != nil {
-		return *m.Mtype
-	}
-	return 0
-}
-
 func (m *UserLogin) GetName() string {
 	if m != nil && m.Name != nil {
 		return *m.Name
@@ -75,9 +67,61 @@ func (m *UserLogin) GetPassword() string {
 	return ""
 }
 
+type UserRegister struct {
+	Name                 *string  `protobuf:"bytes,1,req,name=Name" json:"Name,omitempty"`
+	Password             *string  `protobuf:"bytes,2,req,name=Password" json:"Password,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UserRegister) Reset()         { *m = UserRegister{} }
+func (m *UserRegister) String() string { return proto.CompactTextString(m) }
+func (*UserRegister) ProtoMessage()    {}
+func (*UserRegister) Descriptor() ([]byte, []int) {
+	return fileDescriptor_86f4eab4e7afbe0c, []int{1}
+}
+
+func (m *UserRegister) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UserRegister.Unmarshal(m, b)
+}
+func (m *UserRegister) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UserRegister.Marshal(b, m, deterministic)
+}
+func (m *UserRegister) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserRegister.Merge(m, src)
+}
+func (m *UserRegister) XXX_Size() int {
+	return xxx_messageInfo_UserRegister.Size(m)
+}
+func (m *UserRegister) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserRegister.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UserRegister proto.InternalMessageInfo
+
+func (m *UserRegister) GetName() string {
+	if m != nil && m.Name != nil {
+		return *m.Name
+	}
+	return ""
+}
+
+func (m *UserRegister) GetPassword() string {
+	if m != nil && m.Password != nil {
+		return *m.Password
+	}
+	return ""
+}
+
 type LoginResult struct {
 	Result               *int32   `protobuf:"varint,1,req,name=Result" json:"Result,omitempty"`
-	Name                 *string  `protobuf:"bytes,2,req,name=Name" json:"Name,omitempty"`
+	Type                 *int32   `protobuf:"varint,2,req,name=Type" json:"Type,omitempty"`
+	Uid                  *int64   `protobuf:"varint,3,opt,name=Uid" json:"Uid,omitempty"`
+	Money                *int64   `protobuf:"varint,4,opt,name=Money" json:"Money,omitempty"`
+	Icon                 *int32   `protobuf:"varint,5,opt,name=Icon" json:"Icon,omitempty"`
+	Exp                  *int64   `protobuf:"varint,6,opt,name=Exp" json:"Exp,omitempty"`
+	Name                 *string  `protobuf:"bytes,7,opt,name=Name" json:"Name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -87,7 +131,7 @@ func (m *LoginResult) Reset()         { *m = LoginResult{} }
 func (m *LoginResult) String() string { return proto.CompactTextString(m) }
 func (*LoginResult) ProtoMessage()    {}
 func (*LoginResult) Descriptor() ([]byte, []int) {
-	return fileDescriptor_86f4eab4e7afbe0c, []int{1}
+	return fileDescriptor_86f4eab4e7afbe0c, []int{2}
 }
 
 func (m *LoginResult) XXX_Unmarshal(b []byte) error {
@@ -115,7 +159,193 @@ func (m *LoginResult) GetResult() int32 {
 	return 0
 }
 
+func (m *LoginResult) GetType() int32 {
+	if m != nil && m.Type != nil {
+		return *m.Type
+	}
+	return 0
+}
+
+func (m *LoginResult) GetUid() int64 {
+	if m != nil && m.Uid != nil {
+		return *m.Uid
+	}
+	return 0
+}
+
+func (m *LoginResult) GetMoney() int64 {
+	if m != nil && m.Money != nil {
+		return *m.Money
+	}
+	return 0
+}
+
+func (m *LoginResult) GetIcon() int32 {
+	if m != nil && m.Icon != nil {
+		return *m.Icon
+	}
+	return 0
+}
+
+func (m *LoginResult) GetExp() int64 {
+	if m != nil && m.Exp != nil {
+		return *m.Exp
+	}
+	return 0
+}
+
 func (m *LoginResult) GetName() string {
+	if m != nil && m.Name != nil {
+		return *m.Name
+	}
+	return ""
+}
+
+type GetUserInfo struct {
+	Uid                  *int64   `protobuf:"varint,1,req,name=Uid" json:"Uid,omitempty"`
+	Money                *int64   `protobuf:"varint,2,req,name=Money" json:"Money,omitempty"`
+	Exp                  *int64   `protobuf:"varint,3,opt,name=Exp" json:"Exp,omitempty"`
+	Icon                 *int32   `protobuf:"varint,4,opt,name=Icon" json:"Icon,omitempty"`
+	AcName               *string  `protobuf:"bytes,5,opt,name=AcName" json:"AcName,omitempty"`
+	AcPwd                *string  `protobuf:"bytes,6,opt,name=AcPwd" json:"AcPwd,omitempty"`
+	PlayCount            *int64   `protobuf:"varint,7,opt,name=PlayCount" json:"PlayCount,omitempty"`
+	PlayWin              *int64   `protobuf:"varint,8,opt,name=PlayWin" json:"PlayWin,omitempty"`
+	PlayOut              *int64   `protobuf:"varint,9,opt,name=PlayOut" json:"PlayOut,omitempty"`
+	PlayCreate           *int64   `protobuf:"varint,10,opt,name=PlayCreate" json:"PlayCreate,omitempty"`
+	Honor                *int64   `protobuf:"varint,11,opt,name=Honor" json:"Honor,omitempty"`
+	Gold                 *int64   `protobuf:"varint,12,opt,name=Gold" json:"Gold,omitempty"`
+	Title                *int32   `protobuf:"varint,13,opt,name=Title" json:"Title,omitempty"`
+	Status               *int32   `protobuf:"varint,14,opt,name=Status" json:"Status,omitempty"`
+	Name                 *string  `protobuf:"bytes,15,opt,name=Name" json:"Name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetUserInfo) Reset()         { *m = GetUserInfo{} }
+func (m *GetUserInfo) String() string { return proto.CompactTextString(m) }
+func (*GetUserInfo) ProtoMessage()    {}
+func (*GetUserInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_86f4eab4e7afbe0c, []int{3}
+}
+
+func (m *GetUserInfo) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetUserInfo.Unmarshal(m, b)
+}
+func (m *GetUserInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetUserInfo.Marshal(b, m, deterministic)
+}
+func (m *GetUserInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetUserInfo.Merge(m, src)
+}
+func (m *GetUserInfo) XXX_Size() int {
+	return xxx_messageInfo_GetUserInfo.Size(m)
+}
+func (m *GetUserInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetUserInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetUserInfo proto.InternalMessageInfo
+
+func (m *GetUserInfo) GetUid() int64 {
+	if m != nil && m.Uid != nil {
+		return *m.Uid
+	}
+	return 0
+}
+
+func (m *GetUserInfo) GetMoney() int64 {
+	if m != nil && m.Money != nil {
+		return *m.Money
+	}
+	return 0
+}
+
+func (m *GetUserInfo) GetExp() int64 {
+	if m != nil && m.Exp != nil {
+		return *m.Exp
+	}
+	return 0
+}
+
+func (m *GetUserInfo) GetIcon() int32 {
+	if m != nil && m.Icon != nil {
+		return *m.Icon
+	}
+	return 0
+}
+
+func (m *GetUserInfo) GetAcName() string {
+	if m != nil && m.AcName != nil {
+		return *m.AcName
+	}
+	return ""
+}
+
+func (m *GetUserInfo) GetAcPwd() string {
+	if m != nil && m.AcPwd != nil {
+		return *m.AcPwd
+	}
+	return ""
+}
+
+func (m *GetUserInfo) GetPlayCount() int64 {
+	if m != nil && m.PlayCount != nil {
+		return *m.PlayCount
+	}
+	return 0
+}
+
+func (m *GetUserInfo) GetPlayWin() int64 {
+	if m != nil && m.PlayWin != nil {
+		return *m.PlayWin
+	}
+	return 0
+}
+
+func (m *GetUserInfo) GetPlayOut() int64 {
+	if m != nil && m.PlayOut != nil {
+		return *m.PlayOut
+	}
+	return 0
+}
+
+func (m *GetUserInfo) GetPlayCreate() int64 {
+	if m != nil && m.PlayCreate != nil {
+		return *m.PlayCreate
+	}
+	return 0
+}
+
+func (m *GetUserInfo) GetHonor() int64 {
+	if m != nil && m.Honor != nil {
+		return *m.Honor
+	}
+	return 0
+}
+
+func (m *GetUserInfo) GetGold() int64 {
+	if m != nil && m.Gold != nil {
+		return *m.Gold
+	}
+	return 0
+}
+
+func (m *GetUserInfo) GetTitle() int32 {
+	if m != nil && m.Title != nil {
+		return *m.Title
+	}
+	return 0
+}
+
+func (m *GetUserInfo) GetStatus() int32 {
+	if m != nil && m.Status != nil {
+		return *m.Status
+	}
+	return 0
+}
+
+func (m *GetUserInfo) GetName() string {
 	if m != nil && m.Name != nil {
 		return *m.Name
 	}
@@ -124,20 +354,36 @@ func (m *LoginResult) GetName() string {
 
 func init() {
 	proto.RegisterType((*UserLogin)(nil), "gamepb.UserLogin")
+	proto.RegisterType((*UserRegister)(nil), "gamepb.UserRegister")
 	proto.RegisterType((*LoginResult)(nil), "gamepb.LoginResult")
+	proto.RegisterType((*GetUserInfo)(nil), "gamepb.GetUserInfo")
 }
 
 func init() { proto.RegisterFile("gamepb.proto", fileDescriptor_86f4eab4e7afbe0c) }
 
 var fileDescriptor_86f4eab4e7afbe0c = []byte{
-	// 131 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x49, 0x4f, 0xcc, 0x4d,
-	0x2d, 0x48, 0xd2, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x83, 0xf0, 0x94, 0x02, 0xb9, 0x38,
-	0x43, 0x8b, 0x53, 0x8b, 0x7c, 0xf2, 0xd3, 0x33, 0xf3, 0x84, 0x44, 0xb8, 0x58, 0x7d, 0x4b, 0x2a,
-	0x0b, 0x52, 0x25, 0x18, 0x15, 0x98, 0x34, 0x58, 0x83, 0x20, 0x1c, 0x21, 0x21, 0x2e, 0x16, 0xbf,
-	0xc4, 0xdc, 0x54, 0x09, 0x26, 0x05, 0x26, 0x0d, 0xce, 0x20, 0x30, 0x5b, 0x48, 0x8a, 0x8b, 0x23,
-	0x20, 0xb1, 0xb8, 0xb8, 0x3c, 0xbf, 0x28, 0x45, 0x82, 0x19, 0x2c, 0x0e, 0xe7, 0x2b, 0x59, 0x72,
-	0x71, 0x83, 0x8d, 0x0b, 0x4a, 0x2d, 0x2e, 0xcd, 0x29, 0x11, 0x12, 0xe3, 0x62, 0x83, 0xb0, 0xa0,
-	0xa6, 0x42, 0x79, 0xd8, 0x8c, 0x05, 0x04, 0x00, 0x00, 0xff, 0xff, 0x0d, 0x2f, 0xce, 0x82, 0xa4,
-	0x00, 0x00, 0x00,
+	// 355 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x50, 0xcd, 0x6a, 0xc2, 0x40,
+	0x10, 0x26, 0x89, 0x89, 0x66, 0xb4, 0x3f, 0x2c, 0x45, 0x86, 0x52, 0x4a, 0xf0, 0xe4, 0xa9, 0x2f,
+	0x50, 0x28, 0x48, 0x11, 0x2b, 0xb4, 0x55, 0xb6, 0x4a, 0xcf, 0xa9, 0xd9, 0x4a, 0x20, 0x66, 0x43,
+	0xb2, 0x41, 0x7d, 0x96, 0x3e, 0x60, 0x5f, 0xa3, 0xcc, 0x24, 0x51, 0xdb, 0x5b, 0x6f, 0xf3, 0x7d,
+	0xb3, 0xdf, 0xcf, 0x2c, 0xf4, 0xd6, 0xe1, 0x46, 0x65, 0x1f, 0x77, 0x59, 0xae, 0x8d, 0x16, 0x5e,
+	0x85, 0x06, 0xf7, 0xe0, 0x2f, 0x0b, 0x95, 0x3f, 0xeb, 0x75, 0x9c, 0x0a, 0x01, 0xad, 0xd7, 0x70,
+	0xa3, 0xd0, 0x0a, 0xec, 0xa1, 0x2f, 0x79, 0x16, 0xd7, 0xd0, 0x99, 0x87, 0x45, 0xb1, 0xd5, 0x79,
+	0x84, 0x36, 0xf3, 0x07, 0x3c, 0x78, 0x80, 0x1e, 0x89, 0xa5, 0x5a, 0xc7, 0x85, 0x51, 0xf9, 0xbf,
+	0xf5, 0x5f, 0x16, 0x74, 0x39, 0x59, 0xaa, 0xa2, 0x4c, 0x8c, 0xe8, 0x83, 0x57, 0x4d, 0xec, 0xe0,
+	0xca, 0x1a, 0x91, 0xef, 0x62, 0x9f, 0x29, 0xd6, 0xbb, 0x92, 0x67, 0x71, 0x09, 0xce, 0x32, 0x8e,
+	0xd0, 0x09, 0xac, 0xa1, 0x23, 0x69, 0x14, 0x57, 0xe0, 0xbe, 0xe8, 0x54, 0xed, 0xb1, 0xc5, 0x5c,
+	0x05, 0x48, 0x3b, 0x5d, 0xe9, 0x14, 0xdd, 0xc0, 0x22, 0x2d, 0xcd, 0xa4, 0x1d, 0xef, 0x32, 0xf4,
+	0x2a, 0xed, 0x78, 0x97, 0x1d, 0x9a, 0xb7, 0x03, 0xab, 0x69, 0x3e, 0xf8, 0xb6, 0xa1, 0x3b, 0x51,
+	0x86, 0x2e, 0x9c, 0xa6, 0x9f, 0xba, 0x49, 0xa4, 0x6a, 0x7f, 0x13, 0x6d, 0xe6, 0xea, 0xc4, 0xda,
+	0xdd, 0xf9, 0xe5, 0xce, 0x1d, 0x5a, 0x27, 0x1d, 0xfa, 0xe0, 0x8d, 0x56, 0x9c, 0xe9, 0x72, 0x66,
+	0x8d, 0xc8, 0x73, 0xb4, 0x9a, 0x6f, 0x23, 0x6e, 0xe7, 0xcb, 0x0a, 0x88, 0x1b, 0xf0, 0xe7, 0x49,
+	0xb8, 0x7f, 0xd4, 0x65, 0x6a, 0xb8, 0xa4, 0x23, 0x8f, 0x84, 0x40, 0x68, 0x13, 0x78, 0x8f, 0x53,
+	0xec, 0xf0, 0xae, 0x81, 0xcd, 0x66, 0x56, 0x1a, 0xf4, 0x8f, 0x9b, 0x59, 0x69, 0xc4, 0x2d, 0x00,
+	0x1b, 0xe4, 0x2a, 0x34, 0x0a, 0x81, 0x97, 0x27, 0x0c, 0xf5, 0x78, 0xd2, 0xa9, 0xce, 0xb1, 0x5b,
+	0xfd, 0x26, 0x03, 0xba, 0x64, 0xa2, 0x93, 0x08, 0x7b, 0x4c, 0xf2, 0x4c, 0x2f, 0x17, 0xb1, 0x49,
+	0x14, 0x9e, 0xf1, 0x79, 0x15, 0xa0, 0xfb, 0xde, 0x4c, 0x68, 0xca, 0x02, 0xcf, 0x99, 0xae, 0xd1,
+	0xe1, 0xa7, 0x2f, 0x8e, 0x3f, 0xfd, 0x13, 0x00, 0x00, 0xff, 0xff, 0x9d, 0xb5, 0xa0, 0xa2, 0x9b,
+	0x02, 0x00, 0x00,
 }
