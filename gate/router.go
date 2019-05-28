@@ -7,6 +7,7 @@ import (
 )
 
 func init() {
-	msg.Processor.SetRouter(&gamePb.UserLogin{}, login.ChanRPC)
-	msg.Processor.SetRouter(&gamePb.UserRegister{}, login.ChanRPC)
+	msg.Processor.SetRouter(&gamePb.ReqLogin{}, login.ChanRPC)
+	msg.Processor.SetRouter(&gamePb.ReqRegister{}, login.ChanRPC)
+	msg.Processor.SetRouter(&gamePb.ReqUserInfo{}, login.ChanRPC)
 }

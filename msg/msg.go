@@ -25,10 +25,11 @@ func init() {
 }
 
 func registerProcessor() {
-	Processor.Register(&gamePb.UserLogin{})
-	Processor.Register(&gamePb.UserRegister{})
-	Processor.Register(&gamePb.LoginResult{})
-	Processor.Register(&gamePb.GetUserInfo{})
+	Processor.Register(&gamePb.ReqLogin{})
+	Processor.Register(&gamePb.ReqRegister{})
+	Processor.Register(&gamePb.RpsAuthor{})
+	Processor.Register(&gamePb.RpsUserInfo{})
+	Processor.Register(&gamePb.ReqUserInfo{})
 }
 
 func pl(id int, t reflect.Type) {

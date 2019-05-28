@@ -3,7 +3,7 @@ package internal
 import "math/rand"
 
 // 登陆注册错误代码
-var (
+const (
 	LGOINSUCC    = 1000 // 登陆成功
 	REGISTERSUCC = 1001 // 注册成功
 	ERRNOUSER    = 1002 // 无法找到用户
@@ -11,10 +11,11 @@ var (
 	ERRLOGIN     = 1004 // 用户名或密码错误
 	ERRFORBID    = 1005 // 账户被封
 	ERRNULL      = 1006 // 用户名或密码不能为空
+	ERRSHORT     = 1007 // 用户名或密码长度太短
 )
 
 // 头像预定义
-var (
+const (
 	DEFICON_0  = 0
 	DEFICON_1  = 1
 	DEFICON_2  = 2
@@ -26,16 +27,35 @@ var (
 	DEFICON_8  = 8
 	DEFICON_9  = 9
 	DEFICON_10 = 10
+	DEFICON_11 = 11
+)
+
+// 位字段
+const (
+	FIELD_MONEY      = 1
+	FIELD_EXP        = 2
+	FIELD_NAME       = 4
+	FIELD_ICON       = 8
+	FIELD_ACNAME     = 16
+	FIELD_ACPWD      = 32
+	FIELD_PLAYCOUNT  = 64
+	FIELD_PLAYWIN    = 128
+	FIELD_PLAYOUT    = 256
+	FIELD_PLAYCREATE = 512
+	FIELD_HONOR      = 1024
+	FIELD_GOLD       = 2048
+	FIELD_TITLE      = 4096
+	FIELD_STATUS     = 8192
 )
 
 // 玩家账户状态
-var (
+const (
 	STRUCT_NONE   = 0
 	STRUCT_FORBID = 1
 )
 
 // 请求类型
-var (
+const (
 	TYPE_LOGIN    = 1
 	TYPE_REGISTER = 2
 )
@@ -71,8 +91,11 @@ type ErrCode struct {
 
 func init() {
 	userList = make(map[int64]*User)
-
 	uidIndex = 1001
+
+	user := createUser("janroid", "123456")
+
+	userList[user.uid] = user
 }
 
 func GetUserByUID(uid int64) (*User, int) {
@@ -110,7 +133,7 @@ func createUser(name string, pwd string) *User {
 func initUserInfo(u *User) {
 	u.uid = allocUID()
 	u.exp = 0
-	u.icon = rand.Intn(10)
+	u.icon = rand.Intn(11)
 	u.playCount = 0
 	u.playWin = 0
 	u.playOut = 0

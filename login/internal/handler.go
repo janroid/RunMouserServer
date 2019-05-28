@@ -10,8 +10,9 @@ import (
 )
 
 func init() {
-	handleMsg(&gamePb.UserLogin{}, login)
-	handleMsg(&gamePb.UserRegister{}, register)
+	handleMsg(&gamePb.ReqLogin{}, login)
+	handleMsg(&gamePb.ReqRegister{}, register)
+	handleMsg(&gamePb.ReqUserInfo{}, userInfo)
 }
 
 func handleMsg(m interface{}, h interface{}) {
@@ -20,14 +21,14 @@ func handleMsg(m interface{}, h interface{}) {
 
 func login(args []interface{}) {
 	var name, pwd string
-	if data, ok := args[0].(*gamePb.UserLogin); ok {
+	if data, ok := args[0].(*gamePb.ReqLogin); ok {
 		name = data.GetName()
 		pwd = data.GetPassword()
 	}
 
 	err, user := UserLogin(name, pwd)
 
-	result := new(gamePb.LoginResult)
+	result := new(gamePb.RpsAuthor)
 
 	er := int32(err)
 
@@ -49,6 +50,11 @@ func login(args []interface{}) {
 
 	if a, ok := args[1].(gate.Agent); ok {
 		a.WriteMsg(result)
+
+		// time.Sleep(time.Second)
+		pbU := GetUserInfo(user.uid, 0)
+		a.WriteMsg(pbU)
+
 	} else {
 		log.Error("login Handler - login error, agent is nil")
 	}
@@ -56,12 +62,12 @@ func login(args []interface{}) {
 
 func register(args []interface{}) {
 	var name, pwd string
-	if data, ok := args[0].(*gamePb.UserRegister); ok {
+	if data, ok := args[0].(*gamePb.ReqRegister); ok {
 		name = data.GetName()
 		pwd = data.GetPassword()
 	}
 
-	result := new(gamePb.LoginResult)
+	result := new(gamePb.RpsAuthor)
 
 	err, user := UserRegister(name, pwd)
 	e := int32(err)
@@ -83,8 +89,27 @@ func register(args []interface{}) {
 
 	if a, ok := args[1].(gate.Agent); ok {
 		a.WriteMsg(result)
+
+		pbU := GetUserInfo(user.uid, 0)
+		a.WriteMsg(pbU)
 	} else {
 		log.Error("login Handler - register error, agent is nil")
 	}
 
+}
+
+func userInfo(args []interface{}) {
+	var uid int64
+	var fields int32
+	if data, ok := args[0].(*gamePb.ReqUserInfo); ok {
+		uid = data.GetUid()
+		fields = data.GetFields()
+	}
+	pbU := GetUserInfo(uid, fields)
+	log.Debug("loign handler - userInfo : data = %v", pbU)
+	if a, ok := args[1].(gate.Agent); ok {
+		a.WriteMsg(pbU)
+	} else {
+		log.Error("login Handler - userInfo error, agent is nil")
+	}
 }
