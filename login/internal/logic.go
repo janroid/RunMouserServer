@@ -15,7 +15,7 @@ func UserLogin(name string, pwd string) (int, *User) {
 		return ERRSHORT, nil
 	}
 
-	user := GetUserByName(name)
+	user := LoginByName(name)
 
 	if user == nil {
 		return ERRNOUSER, nil
@@ -41,7 +41,7 @@ func UserRegister(name string, pwd string) (int, *User) {
 		return ERRSHORT, nil
 	}
 
-	user := GetUserByName(name)
+	user := LoginByName(name)
 	if user != nil {
 		return ERRHAVEUSER, nil
 	}

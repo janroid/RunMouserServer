@@ -5,10 +5,10 @@ import (
 )
 
 var (
-	Module        = new(internal.Module)
-	ChanRPC       = internal.ChanRPC
-	UserLogin     = internal.UserLogin
-	UserRegister  = internal.UserRegister
-	GetUserByUID  = internal.GetUserByUID
-	GetUserByName = internal.GetUserByName
+	Module       = new(internal.Module)
+	ChanRPC      = internal.ChanRPC
+	UserLogin    = internal.UserLogin
+	UserRegister = internal.UserRegister
+	GetUserByUID = internal.GetUserByUID
+	LoginByName  = internal.LoginByName
 )
