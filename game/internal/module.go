@@ -1,8 +1,12 @@
 package internal
 
 import (
-	"github.com/name5566/leaf/module"
 	"server/base"
+	"server/game/modules"
+
+	"github.com/name5566/leaf/module"
+
+	"github.com/name5566/leaf/log"
 )
 
 var (
@@ -12,6 +16,14 @@ var (
 
 type Module struct {
 	*module.Skeleton
+}
+
+func init() {
+	log.Debug("game.module - init")
+
+	c := new(modules.RMCard)
+	c.InitData()
+
 }
 
 func (m *Module) OnInit() {
