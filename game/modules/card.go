@@ -3,6 +3,8 @@ package modules
 
 import (
 	"encoding/json"
+	"math/rand"
+	"time"
 
 	"github.com/name5566/leaf/log"
 )
@@ -13,6 +15,7 @@ const (
 	ATTR_TP_DMM  = 2 // 大买卖
 	ATTR_TP_SCFY = 3 // 市场风云
 	ATTR_TP_YW   = 4 // 意外开支
+	ATTR_TP_TDK  = 5 // 特定事件
 )
 
 // 卡片类型组
@@ -70,13 +73,27 @@ type RMCard struct {
 	LinkID       []int  `bson:"linkID"`       // 关联卡片类型，类型数组
 }
 
-func (c *RMCard) InitData() {
+type RMCards struct {
+	XMMCards []*RMCard
+	DMMCards []*RMCard
+	SCCards  []*RMCard
+	EWCards  []*RMCard
+	XHCard   *RMCard // 小孩卡
+	SYCard   *RMCard // 失业卡
+	CSCard   *RMCard // 慈善卡
+	YHCard   *RMCard // 银行结算
+
+}
+
+var CardsFactory = new(RMCards)
+
+func InitData() {
 	log.Debug("game.modules.card -- InitData")
 	var jsonData = []byte(JSON_DATA_XMM)
 
-	var xmmData = make([]RMCard, 0)
+	CardsFactory.XMMCards = make([]*RMCard, 0)
 
-	err := json.Unmarshal(jsonData, &xmmData)
+	err := json.Unmarshal(jsonData, &CardsFactory.XMMCards)
 
 	if err != nil {
 		log.Error("card.go - init error: json err = %v", err)
@@ -84,10 +101,148 @@ func (c *RMCard) InitData() {
 		return
 	}
 
-	log.Debug("id = %v", xmmData)
+	jsonData = []byte(JSON_DATA_DMM)
 
-	for _, v := range xmmData {
-		log.Debug("id = %v", v.Cid)
+	CardsFactory.DMMCards = make([]*RMCard, 0)
+
+	err = json.Unmarshal(jsonData, &CardsFactory.DMMCards)
+
+	if err != nil {
+		log.Error("card.go - init error: json err = %v", err)
+
+		return
 	}
 
+	jsonData = []byte(JSON_DATA_SCFY)
+
+	CardsFactory.SCCards = make([]*RMCard, 0)
+
+	err = json.Unmarshal(jsonData, &CardsFactory.SCCards)
+
+	if err != nil {
+		log.Error("card.go - init error: json err = %v", err)
+
+		return
+	}
+
+	jsonData = []byte(JSON_DATA_EWZC)
+
+	CardsFactory.EWCards = make([]*RMCard, 0)
+
+	err = json.Unmarshal(jsonData, &CardsFactory.EWCards)
+
+	if err != nil {
+		log.Error("card.go - init error: json err = %v", err)
+
+		return
+	}
+
+	h := new(RMCard)
+	(*h).Cid = 501
+	(*h).AttrType = 5
+	(*h).GroupType = 63
+	(*h).Title = "家里添丁"
+	(*h).Desc = "特大喜讯，恭喜%s，迎来了他们的新宝宝！\\r\\n每月增加小孩花费180."
+	(*h).Value = 0
+	(*h).Prange = "0"
+	(*h).Payment = 0
+	(*h).Loan = 0
+	(*h).Cflow = -180
+	(*h).Abbreviation = "孩子支付"
+	(*h).LinkID = []int{-1}
+
+	CardsFactory.XHCard = h
+
+	h = new(RMCard)
+	(*h).Cid = 502
+	(*h).AttrType = 5
+	(*h).GroupType = 53
+	(*h).Title = "失业"
+	(*h).Desc = "因公司经营不善，市场萎缩，公司无法支撑当前规模，你处于裁员名单中。\\r\\n你将减少一个%d现金，并停赛2轮。"
+	(*h).Value = 0
+	(*h).Prange = "0"
+	(*h).Payment = 0
+	(*h).Loan = 0
+	(*h).Cflow = 0
+	(*h).Abbreviation = ""
+	(*h).LinkID = []int{-1}
+
+	CardsFactory.SYCard = h
+
+	h = new(RMCard)
+	(*h).Cid = 504
+	(*h).AttrType = 5
+	(*h).GroupType = 53
+	(*h).Title = "慈善捐款"
+	(*h).Desc = "你被要求参加一个慈善宴会，如果同意，则扣除%10现金(%d),后面3轮你将可以投振2颗骰子。"
+	(*h).Value = 0
+	(*h).Prange = "0"
+	(*h).Payment = 0
+	(*h).Loan = 0
+	(*h).Cflow = 0
+	(*h).Abbreviation = ""
+	(*h).LinkID = []int{-1}
+
+	CardsFactory.CSCard = h
+
+	h = new(RMCard)
+	(*h).Cid = 503
+	(*h).AttrType = 5
+	(*h).GroupType = 53
+	(*h).Title = "银行结算日"
+	(*h).Desc = "现金增加当前现金流数量"
+	(*h).Value = 0
+	(*h).Prange = "0"
+	(*h).Payment = 0
+	(*h).Loan = 0
+	(*h).Cflow = 0
+	(*h).Abbreviation = ""
+	(*h).LinkID = []int{-1}
+
+	CardsFactory.YHCard = h
+
+}
+
+func (c RMCards) getXMMCard() RMCard {
+	rand.Seed(int64(time.Now().UnixNano()))
+	n := rand.Intn(len(c.XMMCards))
+
+	return *c.XMMCards[n]
+}
+
+func (c RMCards) getDMMCard() RMCard {
+	rand.Seed(int64(time.Now().UnixNano()))
+	n := rand.Intn(len(c.DMMCards))
+
+	return *c.DMMCards[n]
+}
+
+func (c RMCards) getSCCard() RMCard {
+	rand.Seed(int64(time.Now().UnixNano()))
+	n := rand.Intn(len(c.SCCards))
+
+	return *c.SCCards[n]
+}
+
+func (c RMCards) getEWCard() RMCard {
+	rand.Seed(int64(time.Now().UnixNano()))
+	n := rand.Intn(len(c.EWCards))
+
+	return *c.EWCards[n]
+}
+
+func (c RMCards) getSYCard() RMCard {
+	return *c.SYCard
+}
+
+func (c RMCards) getXHCard() RMCard {
+	return *c.XHCard
+}
+
+func (c RMCards) getCSCard() RMCard {
+	return *c.CSCard
+}
+
+func (c RMCards) getYHCard() RMCard {
+	return *c.YHCard
 }

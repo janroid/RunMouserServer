@@ -10,28 +10,10 @@ const (
 )
 
 type GUser struct {
-	uid      int64       // 用户ID
-	name     string      // 用户名
-	icon     int         // 头像
-	caree    int         // 职业
-	fsta     *FStatement //财务报表
-	status   int         //操作状态
-	Identity int         // 身份状态
-}
-
-type FStatement struct {
-	money       int64      //现金
-	cflow       int64      //现金流
-	wege        int64      // 工资
-	passin      int64      //被动收入
-	expenditure int64      //支出
-	assets      *Assets    // 资产
-	liability   *Liability // 负债
-}
-
-// 玩家持有股票
-type Stock struct {
-	id    int   // 股票ID
-	count int64 //数量
-	cost  int   //成本
+	uid      int64  // 用户ID
+	name     string // 用户名
+	icon     int    // 头像
+	caree    int    // 职业
+	status   int    //操作状态
+	Identity int    // 身份状态
 }

@@ -21,8 +21,7 @@ type Module struct {
 func init() {
 	log.Debug("game.module - init")
 
-	c := new(modules.RMCard)
-	c.InitData()
+	modules.InitData()
 
 }
 
