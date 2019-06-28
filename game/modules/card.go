@@ -71,6 +71,7 @@ type RMCard struct {
 	Cflow        int    `bson:"cflow"`        // 现金流
 	Abbreviation string `bson:"abbreviation"` // 缩写，简称，使用于报表中
 	LinkID       []int  `bson:"linkID"`       // 关联卡片类型，类型数组
+	Count        int    `bson:"count"`        // 数量
 }
 
 type RMCards struct {
@@ -150,6 +151,7 @@ func InitData() {
 	(*h).Cflow = -180
 	(*h).Abbreviation = "孩子支付"
 	(*h).LinkID = []int{-1}
+	(*h).Count = 1
 
 	CardsFactory.XHCard = h
 
@@ -166,6 +168,7 @@ func InitData() {
 	(*h).Cflow = 0
 	(*h).Abbreviation = ""
 	(*h).LinkID = []int{-1}
+	(*h).Count = 1
 
 	CardsFactory.SYCard = h
 
@@ -182,6 +185,7 @@ func InitData() {
 	(*h).Cflow = 0
 	(*h).Abbreviation = ""
 	(*h).LinkID = []int{-1}
+	(*h).Count = 1
 
 	CardsFactory.CSCard = h
 
@@ -198,6 +202,7 @@ func InitData() {
 	(*h).Cflow = 0
 	(*h).Abbreviation = ""
 	(*h).LinkID = []int{-1}
+	(*h).Count = 1
 
 	CardsFactory.YHCard = h
 
