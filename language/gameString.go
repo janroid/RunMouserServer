@@ -29,6 +29,7 @@ func init() {
 		"str_ca_zcew": "额外支出",
 		"str_ca_zcot": "其他支出",
 		"str_ca_zcxh": "小孩支出",
+		"str_ca_gxdk": "高息贷款支出",
 	}
 }
 

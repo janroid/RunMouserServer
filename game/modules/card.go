@@ -251,3 +251,43 @@ func (c RMCards) getCSCard() RMCard {
 func (c RMCards) getYHCard() RMCard {
 	return *c.YHCard
 }
+
+// 创建一张信用卡卡片
+func (c RMCards) createXYK(money float64) RMCard {
+	h := new(RMCard)
+	(*h).Cid = 504
+	(*h).AttrType = 5
+	(*h).GroupType = 52
+	(*h).Title = "信用卡"
+	(*h).Desc = "使用了信用卡消费"
+	(*h).Value = 0
+	(*h).Prange = "0"
+	(*h).Payment = 0
+	(*h).Loan = int(money)
+	(*h).Cflow = int(money * -0.03)
+	(*h).Abbreviation = "信用卡"
+	(*h).LinkID = []int{-1}
+	(*h).Count = 1
+
+	return *h
+}
+
+//创建一张高息贷款卡片
+func (c RMCards) createGXDK(money float64) RMCard {
+	h := new(RMCard)
+	(*h).Cid = 505
+	(*h).AttrType = 5
+	(*h).GroupType = 51
+	(*h).Title = "高息贷款"
+	(*h).Desc = "向银行借款"
+	(*h).Value = 0
+	(*h).Prange = "0"
+	(*h).Payment = 0
+	(*h).Loan = int(money)
+	(*h).Cflow = int(money * -0.1)
+	(*h).Abbreviation = "高息贷款"
+	(*h).LinkID = []int{-1}
+	(*h).Count = 1
+
+	return *h
+}

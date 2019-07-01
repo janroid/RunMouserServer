@@ -56,6 +56,9 @@ const (
 	CA_TP_INFC = 32 //收入-房产
 	CA_TP_INQY = 33 //收入-企业
 	CA_TP_INOT = 34 //收入-其他
+	CA_TP_XYK  = 41 //支出-信用卡
+	CA_TP_GXDK = 42 //支出-高息贷款
+	CA_TP_XH   = 43 //支出-小孩
 )
 
 type Career struct {
@@ -144,6 +147,7 @@ func (c *Career) Create(cid int) {
 	c.liability[4] = *tab
 
 	// 支出
+	//税金
 	tab = new(TabGroup)
 	tab.mtype = CA_TP_NONE
 	tab.title = language.Get("str_ca_zcsj")
@@ -152,6 +156,7 @@ func (c *Career) Create(cid int) {
 	tab.cid = -1
 	c.expenditure[0] = *tab
 
+	//住房支出
 	tab = new(TabGroup)
 	tab.mtype = CA_TP_NONE
 	tab.title = language.Get("str_ca_zczz")
@@ -160,6 +165,7 @@ func (c *Career) Create(cid int) {
 	tab.cid = -1
 	c.expenditure[1] = *tab
 
+	//教育贷款
 	tab = new(TabGroup)
 	tab.mtype = CA_TP_NONE
 	tab.title = language.Get("str_ca_zcjy")
@@ -168,6 +174,7 @@ func (c *Career) Create(cid int) {
 	tab.cid = -1
 	c.expenditure[2] = *tab
 
+	//购车贷款
 	tab = new(TabGroup)
 	tab.mtype = CA_TP_NONE
 	tab.title = language.Get("str_ca_zcgc")
@@ -176,14 +183,16 @@ func (c *Career) Create(cid int) {
 	tab.cid = -1
 	c.expenditure[3] = *tab
 
+	//信用卡支出
 	tab = new(TabGroup)
-	tab.mtype = CA_TP_NONE
+	tab.mtype = CA_TP_XYK
 	tab.title = language.Get("str_ca_zcxy")
 	tab.value = data[6]
 	tab.extra = 0
 	tab.cid = -1
 	c.expenditure[4] = *tab
 
+	//额外支出
 	tab = new(TabGroup)
 	tab.mtype = CA_TP_NONE
 	tab.title = language.Get("str_ca_zcew")
@@ -192,6 +201,7 @@ func (c *Career) Create(cid int) {
 	tab.cid = -1
 	c.expenditure[5] = *tab
 
+	//其他支出
 	tab = new(TabGroup)
 	tab.mtype = CA_TP_NONE
 	tab.title = language.Get("str_ca_zcot")
@@ -199,6 +209,16 @@ func (c *Career) Create(cid int) {
 	tab.extra = 0
 	tab.cid = -1
 	c.expenditure[6] = *tab
+
+	//高息贷款
+	tab = new(TabGroup)
+	tab.mtype = CA_TP_GXDK
+	tab.title = language.Get("str_ca_gxdk")
+	tab.value = 0
+	tab.extra = 0
+	tab.cid = -1
+	c.expenditure[7] = *tab
+
 }
 
 // 添加一项负债详情
@@ -206,42 +226,59 @@ func (c *Career) AddLiability(tab TabGroup) {
 	c.liability[len(c.liability)] = tab
 }
 
+// 删除负债，num表示数量
 func (c *Career) DelLiability(id int) {
 	for i := 0; i < len(c.liability); i++ {
 		if c.liability[i].cid == id {
 			c.liability = append(c.liability[:i], c.liability[i+1:]...)
-
-			return
 		}
 	}
 }
 
 // 添加一项资产详情
 func (c *Career) AddAssets(tab TabGroup) {
+	if c.ChangeAssets(tab.cid, tab.extra) {
+		return
+	}
+
 	c.assets[len(c.assets)] = tab
 }
 
+// 删除资产详情
 func (c *Career) DelAssets(id int) {
 	for i := 0; i < len(c.assets); i++ {
 		if c.assets[i].cid == id {
 			c.assets = append(c.assets[:i], c.assets[i+1:]...)
-
 			return
 		}
 	}
 }
 
-// 支出详情
-func (c *Career) AddExpenditure(tab TabGroup) {
-	c.totalCost += tab.value
-	c.cflow -= tab.value
+// 修改持有资产的数量
+func (c *Career) ChangeAssets(id int, count int) bool {
+	if id >= 117 && id <= 141 {
+		for i := 0; i < len(c.assets); i++ {
+			if c.assets[i].cid == id {
+				c.assets[i].extra += count
+				return true
+			}
+		}
+	}
 
-	if tab.cid == GP_TP_XH {
+	return false
+}
+
+// 支出详情,只有高息贷款和信用卡可以修改
+func (c *Career) AddExpenditure(tab TabGroup) {
+	c.totalCost -= tab.value
+	c.cflow += tab.value
+
+	if tab.mtype == CA_TP_XH { // 小孩支出
 		c.childNum += 1
 	}
 
 	for i := 0; i < len(c.expenditure); i++ {
-		if c.expenditure[i].cid == tab.cid {
+		if c.expenditure[i].mtype == tab.mtype {
 			c.expenditure[i].value += tab.value
 
 			return
@@ -251,16 +288,16 @@ func (c *Career) AddExpenditure(tab TabGroup) {
 	c.expenditure[len(c.expenditure)] = tab
 }
 
-func (c *Career) DelExpenditure(id int, value int) {
+func (c *Career) DelExpenditure(mtype int, value int) {
 	for i := 0; i < len(c.expenditure); i++ {
-		if c.expenditure[i].cid == id {
-			c.totalCost -= value
-			c.cflow += value
+		if c.expenditure[i].mtype == mtype {
+			c.totalCost += value
+			c.cflow -= value
 
-			c.expenditure[id].value -= value
+			c.expenditure[i].value -= value
 
-			if c.expenditure[id].value <= 0 {
-				c.expenditure = append(c.expenditure[:i], c.expenditure[i+1:]...)
+			if c.expenditure[i].value <= 0 {
+				c.expenditure[i].value = 0
 			}
 			break
 		}
@@ -288,6 +325,32 @@ func (c *Career) DelIncome(id int, value int) {
 	}
 }
 
+// 股票类卡片删除,gtype 类型， num 数量
+func (c *Career) DelStock(card *RMCard) {
+	var num = card.Count
+
+	for i := 0; i < len(c.cards); i++ {
+		if c.cards[i].GroupType == card.GroupType {
+			if c.cards[i].Count <= num {
+				num -= c.cards[i].Count
+
+				c.DelAssets(c.cards[i].Cid)
+				c.DelIncome(c.cards[i].Cid, c.cards[i].Cflow)
+
+				if num <= 0 {
+					return
+				}
+
+			} else {
+				c.cards[i].Count -= num
+
+				c.ChangeAssets(card.Cid, -num)
+			}
+		}
+	}
+
+}
+
 func (c *Career) AddCard(card *RMCard) {
 	if card.AttrType == ATTR_TP_XMM || card.AttrType == ATTR_TP_DMM {
 		c.processChance(card)
@@ -297,6 +360,22 @@ func (c *Career) AddCard(card *RMCard) {
 		c.processAccident(card)
 	} else if card.AttrType == ATTR_TP_TDK {
 		c.processOther(card)
+	}
+}
+
+func (c *Career) DelCard(card *RMCard) {
+	if card.Cid >= 117 && card.Cid <= 141 {
+		c.DelStock(card)
+	} else if card.AttrType == ATTR_TP_XMM || card.AttrType == ATTR_TP_DMM {
+		c.DelLiability(card.Cid)
+		c.DelAssets(card.Cid)
+		c.DelIncome(card.Cid, card.Cflow)
+	} else { // 额外开支
+		if card.GroupType == GP_TP_DK { // 高息贷款
+			c.DelExpenditure(CA_TP_GXDK, card.Cflow)
+		} else {
+			c.DelExpenditure(CA_TP_XYK, card.Cflow)
+		}
 	}
 }
 
@@ -324,6 +403,10 @@ func (c *Career) processChance(card *RMCard) {
 
 // 处理市场风云卡
 func (c *Career) processMart(card *RMCard) {
+	if card.GroupType == GP_TP_XGK {
+		c.processEffect(card)
+		return
+	}
 
 }
 
@@ -339,7 +422,25 @@ func (c *Career) processOther(card *RMCard) {
 
 // 处理效果卡
 func (c *Career) processEffect(card *RMCard) {
+	if card.Cid == 124 {
 
+	} else if card.Cid == 125 {
+
+	} else if card.Cid == 136 {
+
+	} else if card.Cid == 137 {
+
+	} else if card.Cid == 142 {
+
+	} else if card.Cid == 145 {
+
+	} else if card.Cid == 202 {
+
+	} else if card.Cid == 203 {
+
+	} else if card.Cid == 306 {
+
+	}
 }
 
 // 创建一个负债
@@ -393,8 +494,12 @@ func (c *Career) newExpenditure(card *RMCard) *TabGroup {
 	tab.cid = card.Cid
 	tab.title = card.Abbreviation
 	tab.value = card.Cflow
-	if tab.value < 0 {
-		tab.value = -tab.value
+	if card.Cid == 501 { // 小孩
+		tab.mtype = CA_TP_XH
+	} else if card.Cid == 504 { // 信用卡
+		tab.mtype = CA_TP_XYK
+	} else if card.Cid == 505 { // 高息贷款
+		tab.mtype = CA_TP_GXDK
 	}
 
 	return tab
