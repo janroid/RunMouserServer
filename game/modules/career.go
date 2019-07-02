@@ -61,6 +61,13 @@ const (
 	CA_TP_XH   = 43 //支出-小孩
 )
 
+// 玩家状态
+const (
+	CA_SAT_NONE = 0 // 无状态
+	CA_SAT_CS   = 1 // 慈善状态
+	CA_SAT_SY   = 2 // 失业状态
+)
+
 type Career struct {
 	cid         int        // 职业ID
 	name        string     // 职业名称
@@ -71,6 +78,7 @@ type Career struct {
 	childNum    int        // 孩子个数
 	childCost   int        // 每个孩子支付
 	totalCost   int        // 总支付
+	Status      int        // 状态
 	liability   []TabGroup // 负债详情
 	assets      []TabGroup // 资产详情
 	expenditure []TabGroup // 支出详情详情
@@ -104,6 +112,7 @@ func (c *Career) Create(cid int) {
 	c.childNum = 0
 	c.childCost = data[9]
 	c.totalCost = data[10]
+	c.Status = CA_SAT_NONE
 
 	// 负债
 	tab := new(TabGroup)
@@ -131,11 +140,11 @@ func (c *Career) Create(cid int) {
 	c.liability[2] = *tab
 
 	tab = new(TabGroup)
-	tab.mtype = CA_TP_NONE
+	tab.mtype = CA_TP_XYK
 	tab.title = language.Get("str_ca_dkxy")
 	tab.value = data[16]
 	tab.extra = 0
-	tab.cid = -1
+	tab.cid = CA_ID_XYK
 	c.liability[3] = *tab
 
 	tab = new(TabGroup)
@@ -145,6 +154,15 @@ func (c *Career) Create(cid int) {
 	tab.extra = 0
 	tab.cid = -1
 	c.liability[4] = *tab
+
+	//高息贷款
+	tab = new(TabGroup)
+	tab.mtype = CA_TP_GXDK
+	tab.title = language.Get("str_ca_dkgx")
+	tab.value = 0
+	tab.extra = 0
+	tab.cid = CA_ID_GXDK
+	c.liability[5] = *tab
 
 	// 支出
 	//税金
@@ -189,7 +207,7 @@ func (c *Career) Create(cid int) {
 	tab.title = language.Get("str_ca_zcxy")
 	tab.value = data[6]
 	tab.extra = 0
-	tab.cid = -1
+	tab.cid = CA_ID_XYK
 	c.expenditure[4] = *tab
 
 	//额外支出
@@ -216,7 +234,7 @@ func (c *Career) Create(cid int) {
 	tab.title = language.Get("str_ca_gxdk")
 	tab.value = 0
 	tab.extra = 0
-	tab.cid = -1
+	tab.cid = CA_ID_GXDK
 	c.expenditure[7] = *tab
 
 }
@@ -231,6 +249,16 @@ func (c *Career) DelLiability(id int) {
 	for i := 0; i < len(c.liability); i++ {
 		if c.liability[i].cid == id {
 			c.liability = append(c.liability[:i], c.liability[i+1:]...)
+		}
+	}
+}
+
+// 修改负债数据
+func (c *Career) ChangeLiability(id int, value int) {
+	for i := 0; i < len(c.liability); i++ {
+		if c.liability[i].cid == id {
+			c.liability[i].value += value
+			return
 		}
 	}
 }
@@ -271,7 +299,7 @@ func (c *Career) ChangeAssets(id int, count int) bool {
 // 支出详情,只有高息贷款和信用卡可以修改
 func (c *Career) AddExpenditure(tab TabGroup) {
 	c.totalCost -= tab.value
-	c.cflow += tab.value
+	c.changeCflow(tab.value)
 
 	if tab.mtype == CA_TP_XH { // 小孩支出
 		c.childNum += 1
@@ -292,7 +320,7 @@ func (c *Career) DelExpenditure(mtype int, value int) {
 	for i := 0; i < len(c.expenditure); i++ {
 		if c.expenditure[i].mtype == mtype {
 			c.totalCost += value
-			c.cflow -= value
+			c.changeCflow(-value)
 
 			c.expenditure[i].value -= value
 
@@ -306,14 +334,14 @@ func (c *Career) DelExpenditure(mtype int, value int) {
 
 //收入详情
 func (c *Career) AddIncome(tab TabGroup) {
-	c.cflow += tab.value
+	c.changeCflow(tab.value)
 	c.extraIn += tab.value
 
 	c.income[len(c.income)] = tab
 }
 
 func (c *Career) DelIncome(id int, value int) {
-	c.cflow -= value
+	c.changeCflow(-value)
 	c.extraIn -= value
 
 	for i := 0; i < len(c.income); i++ {
@@ -397,7 +425,7 @@ func (c *Career) processChance(card *RMCard) {
 	c.AddAssets(*astab)
 	c.AddIncome(*intab)
 
-	c.money -= card.Payment * card.Count
+	c.changeMoney(-card.Payment * card.Count)
 	c.cards[len(c.cards)] = card
 }
 
@@ -417,20 +445,73 @@ func (c *Career) processAccident(card *RMCard) {
 
 // 处理特定卡
 func (c *Career) processOther(card *RMCard) {
+	if card.Cid == CA_ID_XH { // 小孩卡
+		card.Cflow = -c.childCost
+		tap := c.newExpenditure(card)
+		c.AddExpenditure(*tap)
+
+	} else if card.Cid == CA_ID_SY { // 失业卡
+		c.changeMoney(-c.wege)
+		c.Status = CA_SAT_SY
+
+	} else if card.Cid == CA_ID_FGZ { // 银行结算
+		c.changeMoney(c.cflow)
+
+	} else if card.Cid == CA_ID_CSJK { // 慈善捐款
+		c.changeMoney(c.money / 10)
+		c.Status = CA_SAT_CS
+	} else if card.Cid == CA_ID_XYK { // 信用卡
+		c.ChangeLiability(card.Cid, card.Loan)
+		tap := c.newExpenditure(card)
+		c.AddExpenditure(*tap)
+
+	} else if card.Cid == CA_ID_GXDK { // 高息贷款
+		c.ChangeLiability(card.Cid, card.Loan)
+		tap := c.newExpenditure(card)
+		c.AddExpenditure(*tap)
+	}
 
 }
 
 // 处理效果卡
 func (c *Career) processEffect(card *RMCard) {
 	if card.Cid == 124 {
+		for i := 0; i < len(c.cards); i++ {
+			if c.cards[i].GroupType == GP_TP_ALBB {
+				num := c.cards[i].Count
+				c.cards[i].Count = num * 2
 
+				c.ChangeAssets(c.cards[i].Cid, num)
+			}
+		}
 	} else if card.Cid == 125 {
+		for i := 0; i < len(c.cards); i++ {
+			if c.cards[i].GroupType == GP_TP_ALBB {
+				num := c.cards[i].Count
+				c.cards[i].Count = num / 2
 
+				c.ChangeAssets(c.cards[i].Cid, -num)
+			}
+		}
 	} else if card.Cid == 136 {
+		for i := 0; i < len(c.cards); i++ {
+			if c.cards[i].GroupType == GP_TP_XMKJ {
+				num := c.cards[i].Count
+				c.cards[i].Count = num * 2
 
+				c.ChangeAssets(c.cards[i].Cid, num)
+			}
+		}
 	} else if card.Cid == 137 {
+		for i := 0; i < len(c.cards); i++ {
+			if c.cards[i].GroupType == GP_TP_XMKJ {
+				num := c.cards[i].Count
+				c.cards[i].Count = num / 2
 
-	} else if card.Cid == 142 {
+				c.ChangeAssets(c.cards[i].Cid, -num)
+			}
+		}
+	} else if card.Cid == 142 { // test 待完成
 
 	} else if card.Cid == 145 {
 
@@ -439,7 +520,19 @@ func (c *Career) processEffect(card *RMCard) {
 	} else if card.Cid == 203 {
 
 	} else if card.Cid == 306 {
+		var tmp []int
 
+		for i := 0; i < len(c.cards); i++ {
+			if c.cards[i].GroupType == GP_TP_ZZ3 {
+				tmp[len(tmp)] = i
+				c.DelCard(c.cards[i])
+			}
+		}
+
+		for i := 0; i < len(tmp); i++ {
+			n := tmp[i] - i
+			c.cards = append(c.cards[:n], c.cards[n+1:]...)
+		}
 	}
 }
 
@@ -494,11 +587,11 @@ func (c *Career) newExpenditure(card *RMCard) *TabGroup {
 	tab.cid = card.Cid
 	tab.title = card.Abbreviation
 	tab.value = card.Cflow
-	if card.Cid == 501 { // 小孩
+	if card.Cid == CA_ID_XH { // 小孩
 		tab.mtype = CA_TP_XH
-	} else if card.Cid == 504 { // 信用卡
+	} else if card.Cid == CA_ID_XYK { // 信用卡
 		tab.mtype = CA_TP_XYK
-	} else if card.Cid == 505 { // 高息贷款
+	} else if card.Cid == CA_ID_GXDK { // 高息贷款
 		tab.mtype = CA_TP_GXDK
 	}
 
@@ -519,4 +612,14 @@ func (c *Career) getTabGroupType(id int) int {
 	} else {
 		return 4
 	}
+}
+
+// 处理玩家钱，破产或晋级
+func (c *Career) changeMoney(money int) {
+	c.money += money
+}
+
+// 处理玩家现金流，处理晋级
+func (c *Career) changeCflow(money int) {
+	c.cflow += money
 }

@@ -58,6 +58,16 @@ const (
 	GP_TP_SGFB   = 64 //按原价格翻倍收购
 )
 
+// 特殊卡片ID
+const (
+	CA_ID_XH   = 501 // 小孩卡
+	CA_ID_SY   = 502 // 失业卡
+	CA_ID_FGZ  = 503 // 银行结算
+	CA_ID_CSJK = 504 // 慈善捐款
+	CA_ID_XYK  = 505 // 信用卡
+	CA_ID_GXDK = 506 // 高息贷款
+)
+
 type RMCard struct {
 	Cid          int    `bson:"cid"`          // 唯一ID
 	AttrType     int    `bson:"attrType"`     // 属性组
@@ -139,7 +149,7 @@ func InitData() {
 	}
 
 	h := new(RMCard)
-	(*h).Cid = 501
+	(*h).Cid = CA_ID_XH
 	(*h).AttrType = 5
 	(*h).GroupType = 63
 	(*h).Title = "家里添丁"
@@ -156,7 +166,7 @@ func InitData() {
 	CardsFactory.XHCard = h
 
 	h = new(RMCard)
-	(*h).Cid = 502
+	(*h).Cid = CA_ID_SY
 	(*h).AttrType = 5
 	(*h).GroupType = 53
 	(*h).Title = "失业"
@@ -173,7 +183,7 @@ func InitData() {
 	CardsFactory.SYCard = h
 
 	h = new(RMCard)
-	(*h).Cid = 504
+	(*h).Cid = CA_ID_CSJK
 	(*h).AttrType = 5
 	(*h).GroupType = 53
 	(*h).Title = "慈善捐款"
@@ -190,7 +200,7 @@ func InitData() {
 	CardsFactory.CSCard = h
 
 	h = new(RMCard)
-	(*h).Cid = 503
+	(*h).Cid = CA_ID_FGZ
 	(*h).AttrType = 5
 	(*h).GroupType = 53
 	(*h).Title = "银行结算日"
@@ -255,7 +265,7 @@ func (c RMCards) getYHCard() RMCard {
 // 创建一张信用卡卡片
 func (c RMCards) createXYK(money float64) RMCard {
 	h := new(RMCard)
-	(*h).Cid = 504
+	(*h).Cid = CA_ID_XYK
 	(*h).AttrType = 5
 	(*h).GroupType = 52
 	(*h).Title = "信用卡"
@@ -275,7 +285,7 @@ func (c RMCards) createXYK(money float64) RMCard {
 //创建一张高息贷款卡片
 func (c RMCards) createGXDK(money float64) RMCard {
 	h := new(RMCard)
-	(*h).Cid = 505
+	(*h).Cid = CA_ID_GXDK
 	(*h).AttrType = 5
 	(*h).GroupType = 51
 	(*h).Title = "高息贷款"

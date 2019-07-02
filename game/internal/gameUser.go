@@ -1,5 +1,9 @@
 package internal
 
+import (
+	"server/game/modules"
+)
+
 const (
 	U_STA_NONE  = 0  // 无状态
 	U_STA_READY = 1  // 游戏开始前准备状态
@@ -10,10 +14,13 @@ const (
 )
 
 type GUser struct {
-	uid      int64  // 用户ID
-	name     string // 用户名
-	icon     int    // 头像
-	caree    int    // 职业
-	status   int    //操作状态
-	Identity int    // 身份状态
+	uid    int             // 用户ID
+	name   string          // 用户名
+	icon   int             // 头像
+	career *modules.Career // 职业
+	status int             //操作状态
+}
+
+func (u *GUser) getStatus() int {
+	return u.career.status
 }

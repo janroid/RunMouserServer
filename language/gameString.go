@@ -21,6 +21,7 @@ func init() {
 		"str_ca_dkgc": "购车贷款",
 		"str_ca_dkxy": "信用卡",
 		"str_ca_dkew": "额外负债",
+		"str_ca_dkgx": "高息贷款",
 		"str_ca_zcsj": "税金",
 		"str_ca_zczz": "住房抵押贷款/房租",
 		"str_ca_zcjy": "教育贷款",
