@@ -1,12 +1,13 @@
 package internal
 
 import (
+	ACC "server/account"
 	gamePb "server/msg/gamepb"
 )
 
 var MINLEN = 6 //用户名密码最小长度
 
-func UserLogin(name string, pwd string) (int, *User) {
+func UserLogin(name string, pwd string) (int, *ACC.User) {
 	if len(name) < MINLEN {
 		return ERRSHORT, nil
 	}
@@ -21,18 +22,18 @@ func UserLogin(name string, pwd string) (int, *User) {
 		return ERRNOUSER, nil
 	}
 
-	if user.acPwd != pwd {
+	if user.AcPwd != pwd {
 		return ERRLOGIN, nil
 	}
 
-	if user.status == STRUCT_FORBID {
+	if user.Status == STRUCT_FORBID {
 		return ERRFORBID, nil
 	}
 
 	return LGOINSUCC, user
 }
 
-func UserRegister(name string, pwd string) (int, *User) {
+func UserRegister(name string, pwd string) (int, *ACC.User) {
 	if len(name) < MINLEN {
 		return ERRSHORT, nil
 	}
@@ -76,65 +77,65 @@ func GetUserInfo(uid int64, fields int32) *gamePb.RpsUserInfo {
 
 	tmp := fields & FIELD_MONEY
 	if isAll || tmp > 0 {
-		pbU.Money = &user.money
+		pbU.Money = &user.Money
 	}
 
 	tmp = fields & FIELD_EXP
 	if isAll || tmp > 0 {
-		pbU.Exp = &user.exp
+		pbU.Exp = &user.Exp
 	}
 
 	tmp = fields & FIELD_NAME
 	if isAll || tmp > 0 {
-		pbU.Name = &user.name
+		pbU.Name = &user.Name
 	}
 
 	tmp = fields & FIELD_ICON
 	if isAll || tmp > 0 {
-		ic := int32(user.icon)
+		ic := int32(user.Icon)
 
 		pbU.Icon = &ic
 	}
 
 	tmp = fields & FIELD_PLAYCOUNT
 	if isAll || tmp > 0 {
-		pbU.PlayCount = &user.playCount
+		pbU.PlayCount = &user.PlayCount
 	}
 
 	tmp = fields & FIELD_PLAYWIN
 	if isAll || tmp > 0 {
-		pbU.PlayWin = &user.playWin
+		pbU.PlayWin = &user.PlayWin
 	}
 
 	tmp = fields & FIELD_PLAYOUT
 	if isAll || tmp > 0 {
-		pbU.PlayOut = &user.playOut
+		pbU.PlayOut = &user.PlayOut
 	}
 
 	tmp = fields & FIELD_PLAYCREATE
 	if isAll || tmp > 0 {
-		pbU.PlayCreate = &user.playCreate
+		pbU.PlayCreate = &user.PlayCreate
 	}
 
 	tmp = fields & FIELD_HONOR
 	if isAll || tmp > 0 {
-		pbU.Honor = &user.honor
+		pbU.Honor = &user.Honor
 	}
 
 	tmp = fields & FIELD_GOLD
 	if isAll || tmp > 0 {
-		pbU.Gold = &user.gold
+		pbU.Gold = &user.Gold
 	}
 
 	tmp = fields & FIELD_TITLE
 	if isAll || tmp > 0 {
-		ti := int32(user.title)
+		ti := int32(user.Title)
 		pbU.Title = &ti
 	}
 
 	tmp = fields & FIELD_STATUS
 	if isAll || tmp > 0 {
-		st := int32(user.status)
+		st := int32(user.Status)
 		pbU.Status = &st
 	}
 

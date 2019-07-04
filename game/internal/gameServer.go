@@ -8,6 +8,10 @@ import (
 	"github.com/name5566/leaf/timer"
 )
 
+var (
+	GameLgc *GameInterface
+)
+
 const (
 	GYP_READY = 0 //准备阶段
 	GYP_START = 1 //开始阶段
@@ -28,6 +32,10 @@ type GameServer struct {
 }
 
 var serverID = 10000
+
+func init() {
+	GameLgc = new(GameInterface)
+}
 
 func allocID() int {
 	serverID += 1
@@ -50,7 +58,7 @@ func (g *GameServer) create(num int) {
 
 	g.maxCount = num
 	g.uCount = 0
-	g.uidList = make([]*GUser, num)
+	g.uidList = make(map[int]*GUser)
 	g.round = 0
 	g.status = GYP_READY
 	g.title = "百万富翁" + strconv.Itoa(g.sid) + "场"
@@ -60,6 +68,7 @@ func (g *GameServer) create(num int) {
 	g.timerDis = timer.NewDispatcher(10)
 }
 
+// 游戏开始
 func (g *GameServer) start() int {
 	for _, u := range g.uidList {
 		if u.status != U_STA_READY {
@@ -75,13 +84,15 @@ func (g *GameServer) start() int {
 	return GYP_START
 }
 
+func (g *GameServer) UserLogin(user *GUser) {
+
+}
+
+// 玩家开始操作
 func (g *GameServer) startOperation(tid int) {
-	user := g.uidList[tid]
+	//user := g.uidList[tid]
 
-	if user != nil {
-		status := user.getStatus()
-	}
-
+	GameLgc.StartOperation()
 }
 
 func (g *GameServer) GetUserByID(id int) *GUser {

@@ -38,12 +38,12 @@ func login(args []interface{}) {
 	result.Type = &t
 
 	if err == LGOINSUCC {
-		result.Uid = &user.uid
-		result.Money = &user.money
-		icon := int32(user.icon)
+		result.Uid = &user.Uid
+		result.Money = &user.Money
+		icon := int32(user.Icon)
 		result.Icon = &icon
-		result.Exp = &user.exp
-		result.Name = &user.name
+		result.Exp = &user.Exp
+		result.Name = &user.Name
 	}
 
 	log.Debug("login Handler - login : result = %v ", result)
@@ -52,7 +52,7 @@ func login(args []interface{}) {
 		a.WriteMsg(result)
 
 		// time.Sleep(time.Second)
-		pbU := GetUserInfo(user.uid, 0)
+		pbU := GetUserInfo(user.Uid, 0)
 		a.WriteMsg(pbU)
 
 	} else {
@@ -77,12 +77,12 @@ func register(args []interface{}) {
 	result.Type = &t
 
 	if err == REGISTERSUCC {
-		result.Uid = &user.uid
-		result.Money = &user.money
-		icon := int32(user.icon)
+		result.Uid = &user.Uid
+		result.Money = &user.Money
+		icon := int32(user.Icon)
 		result.Icon = &icon
-		result.Exp = &user.exp
-		result.Name = &user.name
+		result.Exp = &user.Exp
+		result.Name = &user.Name
 	}
 
 	log.Debug("loign handler - register : data = %v", result)
@@ -90,7 +90,7 @@ func register(args []interface{}) {
 	if a, ok := args[1].(gate.Agent); ok {
 		a.WriteMsg(result)
 
-		pbU := GetUserInfo(user.uid, 0)
+		pbU := GetUserInfo(user.Uid, 0)
 		a.WriteMsg(pbU)
 	} else {
 		log.Error("login Handler - register error, agent is nil")

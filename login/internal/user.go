@@ -3,10 +3,7 @@ package internal
 import (
 	"math/rand"
 
-	"server/data"
-
-	"github.com/name5566/leaf/log"
-	"gopkg.in/mgo.v2/bson"
+	ACC "server/account"
 )
 
 // 登陆注册错误代码
@@ -67,91 +64,21 @@ const (
 	TYPE_REGISTER = 2
 )
 
-var (
-	userList map[int64]*User
-	uidIndex int64
-
-	dbName  = "runmouse"
-	tabAcc  = "admin"
-	tabUser = "user"
-)
-
-// 用户信息
-type User struct {
-	uid        int64  // 用户ID
-	exp        int64  // 经验
-	name       string // 用户名
-	icon       int    // 头像
-	acName     string // 用户名
-	acPwd      string // 用户密码
-	playCount  int64  // 总玩牌局数
-	playWin    int64  // 赢的次数
-	playOut    int64  // 淘汰次数
-	playCreate int64  // 创建房间次数
-	honor      int64  // 荣誉
-	money      int64  // 游戏币
-	gold       int64  // 代币
-	title      int    // 头衔
-	status     int    // 账号状态
-}
-
 // 返回的错误信息
 type ErrCode struct {
 	Code   int
 	ErrMsg error
 }
 
-// 账户信息
-type DBAcc struct {
-	ID     int64  `bson:"uid"`
-	ACNAME string `bson:"name"`
-	PWD    string `bson:"password"`
-}
-
-type DBUser struct {
-	ID     int64  `bson:"uid"`
-	EXP    int64  `bson:"exp"`
-	NAME   string `bson:"name"`
-	IC     int    `bson:"icon"`
-	TOTAL  int64  `bson:"playcount"`
-	WIN    int64  `bson:"playwin"`
-	OUT    int64  `bson:"playout"`
-	CREATE int64  `bson:"create"`
-	HONOR  int64  `bson:"honor"`
-	MONEY  int64  `bson:"money"`
-	GLOD   int64  `bson:"gold"`
-	TITLE  int    `bson:"title"`
-	STATYS int    `bson:"status"`
-}
-
-func init() {
-	userList = make(map[int64]*User)
-
-	var users []DBAcc
-	err := data.FindAll(dbName, tabAcc, &users)
-
-	if err != nil {
-		log.Error("******************************* err = %v", err)
-		return
-	}
-
-	uidIndex = 0
-	for _, u := range users {
-		if uidIndex < u.ID {
-			uidIndex = u.ID
-		}
-	}
-}
-
 // 根据ID获取用户信息
-func GetUserByUID(uid int64) (*User, int) {
-	for _, value := range userList {
-		if value.uid == uid {
+func GetUserByUID(uid int64) (*ACC.User, int) {
+	for _, value := range ACC.UserList {
+		if value.Uid == uid {
 			return value, 0
 		}
 	}
 
-	u := findDBUser(uid)
+	u := ACC.FindDBUser(uid)
 
 	if u == nil {
 		return nil, -1
@@ -164,14 +91,14 @@ func GetUserByUID(uid int64) (*User, int) {
 }
 
 // 用户名登陆
-func LoginByName(name string) *User {
-	for _, user := range userList {
-		if user.acName == name {
+func LoginByName(name string) *ACC.User {
+	for _, user := range ACC.UserList {
+		if user.AcName == name {
 			return user
 		}
 	}
 
-	acc := findDBAcc(name, -1)
+	acc := ACC.FindDBAcc(name, -1)
 
 	if acc == nil {
 		return nil
@@ -185,205 +112,128 @@ func LoginByName(name string) *User {
 }
 
 // 创建新用户
-func createUser(name string, pwd string) *User {
+func createUser(name string, pwd string) *ACC.User {
 	if len(name) <= 0 || len(pwd) <= 0 {
 		return nil
 	}
 
-	user := new(User)
+	user := new(ACC.User)
 
 	initUserInfo(user)
-	user.name = name
-	user.acName = name
-	user.acPwd = pwd
+	user.Name = name
+	user.AcName = name
+	user.AcPwd = pwd
 
-	userList[user.uid] = user
+	ACC.UserList[user.Uid] = user
 
 	updateUser(user, true, true, 2)
 
 	return user
 }
 
-func initUserInfo(u *User) {
-	u.uid = allocUID()
-	u.exp = 0
-	u.icon = rand.Intn(11)
-	u.playCount = 0
-	u.playWin = 0
-	u.playOut = 0
-	u.playCreate = 0
-	u.honor = 0
-	u.money = 1000
-	u.gold = 0
-	u.title = 1
-	u.status = STRUCT_NONE
-}
-
-func allocUID() int64 {
-	uidIndex += uidIndex
-
-	return uidIndex
-}
-
-// 从数据库中查找账号
-func findDBAcc(name string, id int64) *DBAcc {
-	acc := new(DBAcc)
-
-	var err error
-	if id <= 0 {
-		err = data.Find(dbName, tabAcc, bson.M{"name": name}, &acc)
-	} else {
-		err = data.Find(dbName, tabAcc, bson.M{"uid": id}, &acc)
-	}
-
-	if err != nil {
-		log.Error("user.go - findDBAcc error : %v", err)
-		return nil
-	}
-
-	return acc
-}
-
-// 从数据库中查找用户
-func findDBUser(id int64) *DBUser {
-	u := new(DBUser)
-
-	err := data.Find(dbName, tabUser, bson.M{"uid": id}, &u)
-
-	if err != nil {
-		log.Error("user.go - findDBUser error : %v", err)
-
-		return nil
-	}
-
-	return u
+func initUserInfo(u *ACC.User) {
+	u.Uid = ACC.AllocUid()
+	u.Exp = 0
+	u.Icon = rand.Intn(11)
+	u.PlayCount = 0
+	u.PlayWin = 0
+	u.PlayOut = 0
+	u.PlayCreate = 0
+	u.Honor = 0
+	u.Money = 1000
+	u.Gold = 0
+	u.Title = 1
+	u.Status = STRUCT_NONE
 }
 
 // 组合user
-func assemblyUser(id int64, acc *DBAcc, u *DBUser) *User {
+func assemblyUser(id int64, acc *ACC.DBAcc, u *ACC.DBUser) *ACC.User {
 	if acc == nil {
-		acc = findDBAcc("", id)
+		acc = ACC.FindDBAcc("", id)
 	}
 
 	if u == nil {
-		u = findDBUser(id)
+		u = ACC.FindDBUser(id)
 	}
 
 	if acc == nil || u == nil {
 		return nil
 	}
 
-	user := new(User)
+	user := new(ACC.User)
 
-	user.uid = id
-	user.exp = u.EXP
-	user.name = u.NAME
-	user.icon = u.IC
-	user.acName = acc.ACNAME
-	user.acPwd = acc.PWD
-	user.playCount = u.TOTAL
-	user.playWin = u.WIN
-	user.playOut = u.OUT
-	user.playCreate = u.CREATE
-	user.honor = u.HONOR
-	user.money = u.MONEY
-	user.gold = u.GLOD
-	user.title = u.TITLE
-	user.status = u.STATYS
+	user.Uid = id
+	user.Exp = u.EXP
+	user.Name = u.NAME
+	user.Icon = u.IC
+	user.AcName = acc.ACNAME
+	user.AcPwd = acc.PWD
+	user.PlayCount = u.TOTAL
+	user.PlayWin = u.WIN
+	user.PlayOut = u.OUT
+	user.PlayCreate = u.CREATE
+	user.Honor = u.HONOR
+	user.Money = u.MONEY
+	user.Gold = u.GLOD
+	user.Title = u.TITLE
+	user.Status = u.STATYS
 
 	return user
 }
 
 // 添加user到缓存列表
-func addUserList(user *User) {
+func addUserList(user *ACC.User) {
 	if user == nil {
 		return
 	}
 
-	if user.uid <= 0 {
+	if user.Uid <= 0 {
 		return
 	}
 
-	userList[user.uid] = user
-}
-
-// 更新账户表
-func updateAccDB(acc *DBAcc) {
-	if acc == nil {
-		return
-	}
-
-	data.Update(dbName, tabAcc, bson.M{"uid": acc.ID}, acc)
-
-}
-
-// 更新用户数据库表
-func updateUserDB(user *DBUser) {
-	if user == nil {
-		return
-	}
-
-	data.Update(dbName, tabUser, bson.M{"uid": user.ID}, user)
-}
-
-// 新增账户表数据
-func insertAccDB(acc *DBAcc) {
-	if acc == nil {
-		return
-	}
-
-	data.Insert(dbName, tabAcc, acc)
-}
-
-// 新增用户表数据
-func insertUserDB(user *DBUser) {
-	if user == nil {
-		return
-	}
-
-	data.Insert(dbName, tabUser, user)
+	ACC.UserList[user.Uid] = user
 }
 
 // 根据用户对象更新账号或用户表, upOadd : 1；表示更新，2：表示添加
-func updateUser(user *User, isAcc bool, isUser bool, upOadd int) {
+func updateUser(user *ACC.User, isAcc bool, isUser bool, upOadd int) {
 	if user == nil {
 		return
 	}
 
 	if isAcc {
-		acc := new(DBAcc)
-		acc.ID = user.uid
-		acc.ACNAME = user.acName
-		acc.PWD = user.acPwd
+		acc := new(ACC.DBAcc)
+		acc.ID = user.Uid
+		acc.ACNAME = user.AcName
+		acc.PWD = user.AcPwd
 
 		if upOadd == 1 {
-			updateAccDB(acc)
+			ACC.UpdateAccDB(acc)
 		} else if upOadd == 2 {
-			insertAccDB(acc)
+			ACC.InsertAccDB(acc)
 		}
 
 	}
 
 	if isUser {
-		dbu := new(DBUser)
-		dbu.ID = user.uid
-		dbu.EXP = user.exp
-		dbu.NAME = user.name
-		dbu.IC = user.icon
-		dbu.TOTAL = user.playCount
-		dbu.WIN = user.playWin
-		dbu.OUT = user.playOut
-		dbu.CREATE = user.playCreate
-		dbu.HONOR = user.honor
-		dbu.MONEY = user.money
-		dbu.GLOD = user.gold
-		dbu.TITLE = user.title
-		dbu.STATYS = user.status
+		dbu := new(ACC.DBUser)
+		dbu.ID = user.Uid
+		dbu.EXP = user.Exp
+		dbu.NAME = user.Name
+		dbu.IC = user.Icon
+		dbu.TOTAL = user.PlayCount
+		dbu.WIN = user.PlayWin
+		dbu.OUT = user.PlayOut
+		dbu.CREATE = user.PlayCreate
+		dbu.HONOR = user.Honor
+		dbu.MONEY = user.Money
+		dbu.GLOD = user.Gold
+		dbu.TITLE = user.Title
+		dbu.STATYS = user.Status
 
 		if upOadd == 1 {
-			updateUserDB(dbu)
+			ACC.UpdateUserDB(dbu)
 		} else if upOadd == 2 {
-			insertUserDB(dbu)
+			ACC.InsertUserDB(dbu)
 		}
 
 	}

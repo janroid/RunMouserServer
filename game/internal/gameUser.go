@@ -2,6 +2,8 @@ package internal
 
 import (
 	"server/game/modules"
+
+	"github.com/name5566/leaf/gate"
 )
 
 const (
@@ -18,9 +20,10 @@ type GUser struct {
 	name   string          // 用户名
 	icon   int             // 头像
 	career *modules.Career // 职业
-	status int             //操作状态
+	status int             // 操作状态
+	agent  *gate.Agent     // 链接
 }
 
 func (u *GUser) getStatus() int {
-	return u.career.status
+	return u.career.Status
 }
